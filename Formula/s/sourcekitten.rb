@@ -5,6 +5,7 @@ class Sourcekitten < Formula
       tag:      "0.38.0",
       revision: "821fc0eaa7c07fc98df1e9d3d43371cace697644"
   license "MIT"
+  revision 1
   compatibility_version 1
   head "https://github.com/jpsim/SourceKitten.git", branch: "main"
 
@@ -18,11 +19,11 @@ class Sourcekitten < Formula
     sha256                               x86_64_linux:      "c3cd592a6d2596a5f3ce0ed67ccd63498bcfd66f5ea4dace5fc163aef6a201b1"
   end
 
-  uses_from_macos "swift"
+  uses_from_macos "swift" # loads libsourcekitdInProc.so at runtime
 
   on_macos do
     depends_on xcode: ["14.0", :build]
-    depends_on xcode: "6.0"
+    depends_on xcode: "6.0" # does not support CLT sourcekitd.framework
   end
 
   deny_network_access!
@@ -34,7 +35,8 @@ class Sourcekitten < Formula
   end
 
   def install
-    system "make", "prefix_install", "PREFIX=#{prefix}", "TEMPORARY_FOLDER=#{buildpath}/SourceKitten.dst"
+    system "swift", "build", *std_swift_args
+    bin.install ".build/release/sourcekitten"
     generate_completions_from_executable(bin/"sourcekitten", "--generate-completion-script")
   end
 
